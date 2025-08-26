@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>منظَّم — المواد</title>
+  <link rel="stylesheet" href="style.css"/>
+  
+  <!-- إضافات PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#5b2dd6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="منظَّم">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+  <header class="app-bar">
+    <h1>منظَّم <span class="logo">📚</span></h1>
+    <!-- تم إزالة شريط البحث من هنا -->
+  </header>
+
+  <!-- الشاشة الرئيسية -->
+  <main id="home" class="screen active">
+    <section class="subjects" id="subjectsGrid"></section>
+    <button id="addSubjectBtn" class="fab fab-main">➕ إضافة مادة</button>
+  </main>
+
+  <!-- شاشة المادة -->
+  <main id="subject" class="screen">
+    <div class="subject-header">
+      <button id="backBtn" class="back" title="رجوع">↩</button>
+      <div class="subject-title">
+        <span id="subjectIcon" class="subject-emoji">📘</span>
+        <h2 id="subjectName">—</h2>
+        <span id="subjectMood" class="mood">😀</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="notes">📝 ملاحظات</button>
+      <button class="tab" data-tab="files">📂 ملفات</button>
+      <button class="tab" data-tab="images">🖼️ صور</button>
+      <button class="tab" data-tab="audio">🎵 صوتيات</button>
+    </div>
+
+    <!-- Notes -->
+    <section class="tab-body active" id="tab-notes" data-scope="notes">
+      <div class="empty" data-empty="notes">لا توجد ملاحظات</div>
+      <ul id="notesList" class="list"></ul>
+      <button class="fab fab-notes" data-add="note" title="إضافة ملاحظة">➕</button>
+    </section>
+
+    <!-- Files -->
+    <section class="tab-body" id="tab-files" data-scope="files">
+      <div class="empty" data-empty="files">لا توجد ملفات</div>
+      <div id="filesList" class="files-grid"></div>
+      <button class="fab fab-files" data-add="file" title="إضافة ملف">➕</button>
+    </section>
+
+    <!-- Images -->
+    <section class="tab-body" id="tab-images" data-scope="images">
+      <div class="empty" data-empty="images">لا توجد صور</div>
+      <div id="imagesList" class="images-grid"></div>
+      <button class="fab fab-images" data-add="image" title="إضافة صورة">➕</button>
+    </section>
+
+    <!-- Audio -->
+    <section class="tab-body" id="tab-audio" data-scope="audio">
+      <div class="empty" data-empty="audio">لا توجد صوتيات</div>
+      <div id="audioList" class="audio-grid"></div>
+      <button class="fab fab-audio" data-add="audio" title="إضافة صوتية">➕</button>
+    </section>
+
+    <div id="trashBar" class="trash-bar">
+      <span>تحديد متعدد ➝ حذف</span>
+      <button id="trashBtn" class="trash">🗑️</button>
+      <button id="cancelSelect" class="cancel">إلغاء</button>
+    </div>
+  </main>
+
+  <!-- Modal لعرض الصورة بالحجم الكامل -->
+  <div id="imageModal" class="modal">
+    <img id="modalImage" src="" alt="full"/>
+  </div>
+
+  <!-- حوارات -->
+  <dialog id="subjectDialog" class="dialog">
+    <form method="dialog" id="subjectForm">
+      <h3>مادة جديدة</h3>
+      <label>اسم المادة</label>
+      <input id="subjectInput" required>
+      <label>الأيقونة</label>
+      <div class="emoji-row" id="iconRow">
+        <button type="button">📗</button><button type="button">📘</button><button type="button">📙</button>
+        <button type="button">🔬</button><button type="button">🧪</button><button type="button">🧮</button>
+        <button type="button">🔭</button><button type="button">🧠</button><button type="button">💻</button>
+      </div>
+      <input id="iconPicked" hidden value="📘">
+      <label>مستوى الفهم (اختر إيموجي)</label>
+      <div class="emoji-row" id="moodRow">
+        <button type="button">😀</button><button type="button">🙂</button><button type="button">😐</button>
+        <button type="button">🤔</button><button type="button">☹️</button><button type="button">😵</button>
+      </div>
+      <input id="moodPicked" hidden value="😀">
+      <label>اللون</label>
+      <div class="color-row" id="colorRow">
+        <button type="button" data-color="#7E57C2" style="background:#7E57C2"></button>
+        <button type="button" data-color="#43A047" style="background:#43A047"></button>
+        <button type="button" data-color="#0288D1" style="background:#0288D1"></button>
+        <button type="button" data-color="#F4511E" style="background:#F4511E"></button>
+        <button type="button" data-color="#6D4C41" style="background:#6D4C41"></button>
+        <button type="button" data-color="#00897B" style="background:#00897B"></button>
+        <button type="button" data-color="#E91E63" style="background:#E91E63"></button>
+      </div>
+      <input id="colorPicked" hidden value="#7E57C2">
+      <menu>
+        <button value="cancel">إلغاء</button>
+        <button id="saveSubject" value="default">حفظ</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="noteDialog" class="dialog">
+    <form method="dialog" id="noteForm">
+      <h3>ملاحظة جديدة</h3>
+      <textarea id="noteText" rows="5" placeholder="أدخل النص هنا..."></textarea>
+      <menu>
+        <button value="cancel">إلغاء</button>
+        <button id="saveNote" value="default">حفظ</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="fileDialog" class="dialog">
+    <form method="dialog" id="fileForm">
+      <h3>ملف جديد</h3>
+      <label>اسم (اختياري)</label>
+      <input id="fileTitle" placeholder="عنوان الملف">
+      <label>اختر ملفًا</label>
+      <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.xlsx,.xls,.csv,.zip,.rar,.7z,.json,.md,.html,.js,.css,.ts,.py,.java,.c,.cpp">
+      <small>سيتم حفظ الملف داخل IndexedDB على جهازك.</small>
+      <menu>
+        <button value="cancel">إلغاء</button>
+        <button id="saveFile" value="default">حفظ</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="imageDialog" class="dialog">
+    <form method="dialog" id="imageForm">
+      <h3>صورة جديدة</h3>
+      <input id="imageInput" type="file" accept="image/*">
+      <menu>
+        <button value="cancel">إلغاء</button>
+        <button id="saveImage" value="default">حفظ</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="audioDialog" class="dialog">
+    <form method="dialog" id="audioForm">
+      <h3>صوتية جديدة</h3>
+      <input id="audioInput" type="file" accept="audio/*">
+      <menu>
+        <button value="cancel">إلغاء</button>
+        <button id="saveAudio" value="default">حفظ</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+  
+  <!-- تسجيل Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registered successfully: ', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
